@@ -101,7 +101,9 @@ private fun Point(
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
                     val delta = IntOffset(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
-                    setOffset(offset() + delta)
+                    val offsetValue = offset() + delta
+                    if (offsetValue.x >= 0 && offsetValue.y >= 0)
+                    setOffset(offsetValue)
                 }
             }
             .wrapContentSize()
