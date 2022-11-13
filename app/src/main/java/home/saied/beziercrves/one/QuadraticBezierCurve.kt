@@ -14,6 +14,8 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
@@ -28,6 +30,7 @@ import kotlin.math.roundToInt
 private val offsetRawList = listOf(
     20 to 110, 220 to 60, 70 to 250
 )
+private val colorList = listOf(Color.Green, Color.Red, Color.Blue)
 
 @Composable
 private fun initOffsets(): List<IntOffset> =
@@ -42,51 +45,25 @@ fun QuadraticBezierCurve(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         val initOffsetList = initOffsets()
         val offsetList = remember { initOffsetList.toMutableStateList() }
-//        Point({ dOffset }) {
-//            offset = it
-//        }
         repeat(3) { index ->
             Point(
                 offset = { offsetList[index] },
-                setOffset = { offsetList[index] = it }
+                setOffset = { offsetList[index] = it },
+                color = colorList[index]
             )
         }
         Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[1] })
         Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[2] })
+        Bezier(point0 = offsetList[1].toOffset(), point1 = offsetList[0].toOffset(), point2 = offsetList[2].toOffset())
     }
 }
-
-//@Composable
-//private fun Point(
-//    offset: () -> Offset, setOffset: (Offset) -> Unit
-//) {
-//    Box(
-//        modifier = Modifier
-//            .size(15.dp)
-//            .offset {
-//                val currentOffset = offset()
-//                IntOffset(currentOffset.x.roundToInt(), currentOffset.y.roundToInt())
-//            }
-//            .background(Color.Red, shape = CircleShape)
-//            .pointerInput(Unit) {
-//                detectDragGestures { change, dragAmount ->
-//                    val currentOffset = offset()
-//                    val original = Offset(currentOffset.x, currentOffset.y)
-//                    setOffset(original + dragAmount)
-//                    Log.d("drag", offset.toString())
-//                }
-//            }
-//            .wrapContentSize()
-//    ) {
-//        Text(text = offset().toString(), overflow = TextOverflow.Visible)
-//    }
-//}
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
 private fun Point(
     offset: () -> IntOffset,
     setOffset: (IntOffset) -> Unit,
+    color: Color,
     modifier: Modifier = Modifier
 ) {
     val textMeasure = rememberTextMeasurer()
@@ -97,13 +74,13 @@ private fun Point(
             .offset {
                 offset() - IntOffset(radius.roundToInt() / 2, radius.roundToInt() / 2)
             }
-            .background(Color.Red, shape = CircleShape)
+            .background(color, shape = CircleShape)
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
                     val delta = IntOffset(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
                     val offsetValue = offset() + delta
                     if (offsetValue.x >= 0 && offsetValue.y >= 0)
-                    setOffset(offsetValue)
+                        setOffset(offsetValue)
                 }
             }
             .wrapContentSize()
@@ -124,5 +101,19 @@ private fun Line(
         val intOffset0 = vertice0()
         val intOffset1 = vertice1()
         drawLine(Color.Black, intOffset0.toOffset(), intOffset1.toOffset())
+    }
+}
+
+@Composable
+private fun Bezier(
+    point0: Offset,
+    point1: Offset,
+    point2: Offset,
+    modifier: Modifier = Modifier,) {
+    Canvas(modifier = modifier) {
+        val path = Path()
+        path.moveTo(point0.x, point0.y)
+        path.quadraticBezierTo(point1.x, point1.y,point2.x, point2.y)
+        drawPath(path = path, color = Color.Black, style = Stroke(width = 1f))
     }
 }
