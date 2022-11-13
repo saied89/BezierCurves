@@ -94,7 +94,9 @@ private fun Point(
     Canvas(
         modifier = modifier
             .size(15.dp)
-            .offset { offset() }
+            .offset {
+                offset() - IntOffset(radius.roundToInt() / 2, radius.roundToInt() / 2)
+            }
             .background(Color.Red, shape = CircleShape)
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
@@ -105,7 +107,6 @@ private fun Point(
             .wrapContentSize()
     ) {
         val currentOffset = offset()
-        drawCircle(color = Color.Green, center = currentOffset.toOffset())
         val textLayoutResult = textMeasure.measure(AnnotatedString(currentOffset.toString()))
         drawText(textLayoutResult, topLeft = Offset(this.size.width, this.size.height))
     }
