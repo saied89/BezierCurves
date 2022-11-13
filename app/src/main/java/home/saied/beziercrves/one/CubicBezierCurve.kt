@@ -11,30 +11,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import home.saied.beziercrves.Line
 import home.saied.beziercrves.Point
-import kotlin.math.roundToInt
+import home.saied.beziercrves.toIntOffset
 
-private val offsetRawList = listOf(
-    110 to 150, 25 to 190, 210 to 250, 210 to 30
+private val offsetList = listOf(
+    110.dp to 150.dp, 25.dp to 190.dp, 210.dp to 250.dp, 210.dp to 30.dp
 )
 private val colorList = listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow)
 
 @Composable
-private fun initOffsets(): List<IntOffset> =
-    with(LocalDensity.current) {
-        offsetRawList.map {
-            IntOffset(it.first.dp.toPx().roundToInt(), it.second.dp.toPx().roundToInt())
-        }
-    }
-
-@Composable
 fun CubicBezierCurve(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
-        val initOffsetList = initOffsets()
+        val initOffsetList = offsetList.map { LocalDensity.current.toIntOffset(it) }
         val offsetList = remember { initOffsetList.toMutableStateList() }
         Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[1] })
         Line(vertice0 = { offsetList[1] }, vertice1 = { offsetList[2] })
