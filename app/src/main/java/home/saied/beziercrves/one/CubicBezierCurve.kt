@@ -14,8 +14,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import home.saied.beziercrves.Line
-import home.saied.beziercrves.Point
-import home.saied.beziercrves.toIntOffset
+import home.saied.beziercrves.DraggablePoint
+import home.saied.beziercrves.intPairToIntOffset
 
 private val offsetList = listOf(
     110.dp to 150.dp, 25.dp to 190.dp, 210.dp to 250.dp, 210.dp to 30.dp
@@ -25,7 +25,7 @@ private val colorList = listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow)
 @Composable
 fun CubicBezierCurve(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
-        val initOffsetList = offsetList.map { LocalDensity.current.toIntOffset(it) }
+        val initOffsetList = offsetList.map { LocalDensity.current.intPairToIntOffset(it) }
         val offsetList = remember { initOffsetList.toMutableStateList() }
         Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[1] })
         Line(vertice0 = { offsetList[1] }, vertice1 = { offsetList[2] })
@@ -37,7 +37,7 @@ fun CubicBezierCurve(modifier: Modifier = Modifier) {
             point3 = offsetList[3].toOffset()
         )
         repeat(4) { index ->
-            Point(
+            DraggablePoint(
                 offset = { offsetList[index] },
                 setOffset = { offsetList[index] = it },
                 color = colorList[index]

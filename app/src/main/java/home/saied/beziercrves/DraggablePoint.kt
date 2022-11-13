@@ -23,7 +23,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun Point(
+fun DraggablePoint(
     offset: () -> IntOffset,
     setOffset: (IntOffset) -> Unit,
     color: Color,
