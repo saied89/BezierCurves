@@ -22,6 +22,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
 import kotlin.math.roundToInt
 
 private val offsetRawList = listOf(
@@ -50,6 +51,8 @@ fun QuadraticBezierCurve(modifier: Modifier = Modifier) {
                 setOffset = { offsetList[index] = it }
             )
         }
+        Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[1] })
+        Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[2] })
     }
 }
 
@@ -87,6 +90,7 @@ private fun Point(
     modifier: Modifier = Modifier
 ) {
     val textMeasure = rememberTextMeasurer()
+    val radius = with(LocalDensity.current) { 15.dp.toPx() }
     Canvas(
         modifier = modifier
             .size(15.dp)
@@ -101,8 +105,21 @@ private fun Point(
             .wrapContentSize()
     ) {
         val currentOffset = offset()
-        drawCircle(Color.Green)
+        drawCircle(color = Color.Green, center = currentOffset.toOffset())
         val textLayoutResult = textMeasure.measure(AnnotatedString(currentOffset.toString()))
         drawText(textLayoutResult, topLeft = Offset(this.size.width, this.size.height))
+    }
+}
+
+@Composable
+private fun Line(
+    modifier: Modifier = Modifier,
+    vertice0: () -> IntOffset,
+    vertice1: () -> IntOffset
+) {
+    Canvas(modifier = modifier) {
+        val intOffset0 = vertice0()
+        val intOffset1 = vertice1()
+        drawLine(Color.Black, intOffset0.toOffset(), intOffset1.toOffset())
     }
 }
