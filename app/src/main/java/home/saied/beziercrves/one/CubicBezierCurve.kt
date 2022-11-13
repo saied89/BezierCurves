@@ -19,9 +19,9 @@ import home.saied.beziercrves.Point
 import kotlin.math.roundToInt
 
 private val offsetRawList = listOf(
-    20 to 110, 220 to 60, 70 to 250
+    110 to 150, 25 to 190, 210 to 250, 210 to 30
 )
-private val colorList = listOf(Color.Green, Color.Red, Color.Blue)
+private val colorList = listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow)
 
 @Composable
 private fun initOffsets(): List<IntOffset> =
@@ -32,14 +32,20 @@ private fun initOffsets(): List<IntOffset> =
     }
 
 @Composable
-fun QuadraticBezierCurve(modifier: Modifier = Modifier) {
+fun CubicBezierCurve(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         val initOffsetList = initOffsets()
         val offsetList = remember { initOffsetList.toMutableStateList() }
         Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[1] })
-        Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[2] })
-        QuadraticBezier(point0 = offsetList[1].toOffset(), point1 = offsetList[0].toOffset(), point2 = offsetList[2].toOffset())
-        repeat(3) { index ->
+        Line(vertice0 = { offsetList[1] }, vertice1 = { offsetList[2] })
+        Line(vertice0 = { offsetList[2] }, vertice1 = { offsetList[3] })
+        QubicBezier(
+            point0 = offsetList[0].toOffset(),
+            point1 = offsetList[1].toOffset(),
+            point2 = offsetList[2].toOffset(),
+            point3 = offsetList[3].toOffset()
+        )
+        repeat(4) { index ->
             Point(
                 offset = { offsetList[index] },
                 setOffset = { offsetList[index] = it },
@@ -50,15 +56,17 @@ fun QuadraticBezierCurve(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun QuadraticBezier(
+private fun QubicBezier(
     point0: Offset,
     point1: Offset,
     point2: Offset,
-    modifier: Modifier = Modifier,) {
+    point3: Offset,
+    modifier: Modifier = Modifier,
+) {
     Canvas(modifier = modifier) {
         val path = Path()
         path.moveTo(point0.x, point0.y)
-        path.quadraticBezierTo(point1.x, point1.y,point2.x, point2.y)
+        path.cubicTo(point1.x, point1.y, point2.x, point2.y, point3.x, point3.y)
         drawPath(path = path, color = Color.Black, style = Stroke(width = 1f))
     }
 }

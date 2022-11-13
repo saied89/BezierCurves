@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import home.saied.beziercrves.one.CubicBezierCurve
 import home.saied.beziercrves.one.QuadraticBezierCurve
 import home.saied.beziercrves.ui.theme.BezierCrvesTheme
 
@@ -19,9 +20,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             BezierCrvesTheme {
                 // A surface container using the 'background' color from the theme
-                QuadraticBezierCurve(modifier = Modifier
-                    .background(Color.LightGray)
-                    .fillMaxSize())
+                CubicBezierCurve(
+                    modifier = Modifier
+                        .background(Color.LightGray)
+                        .fillMaxSize()
+                )
             }
         }
     }
