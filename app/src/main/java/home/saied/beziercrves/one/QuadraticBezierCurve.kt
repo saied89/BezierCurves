@@ -18,9 +18,9 @@ import home.saied.beziercrves.Point
 import home.saied.beziercrves.toIntOffset
 
 private val offsetList = listOf(
-    20.dp to 110.dp, 220.dp to 60.dp, 70.dp to 250.dp
+    70.dp to 250.dp, 20.dp to 110.dp, 220.dp to 60.dp
 )
-private val colorList = listOf(Color.Green, Color.Red, Color.Blue)
+private val colorList = listOf(Color.Red, Color.Green, Color.Blue)
 
 @Composable
 fun QuadraticBezierCurve(modifier: Modifier = Modifier) {
@@ -28,10 +28,10 @@ fun QuadraticBezierCurve(modifier: Modifier = Modifier) {
         val initOffsetList = offsetList.map { LocalDensity.current.toIntOffset(it) }
         val offsetList = remember { initOffsetList.toMutableStateList() }
         Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[1] })
-        Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[2] })
+        Line(vertice0 = { offsetList[1] }, vertice1 = { offsetList[2] })
         QuadraticBezier(
-            point0 = offsetList[1].toOffset(),
-            point1 = offsetList[0].toOffset(),
+            point0 = offsetList[0].toOffset(),
+            point1 = offsetList[1].toOffset(),
             point2 = offsetList[2].toOffset()
         )
         repeat(3) { index ->

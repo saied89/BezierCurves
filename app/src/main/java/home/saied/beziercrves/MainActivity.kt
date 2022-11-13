@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BezierCrvesTheme {
                 // A surface container using the 'background' color from the theme
-                CubicBezierCurve(
+                QuadraticBezierCurve(
                     modifier = Modifier
                         .background(Color.LightGray)
                         .fillMaxSize()
