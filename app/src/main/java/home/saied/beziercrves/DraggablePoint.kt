@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
+private val DraggablePointRadius = 15.dp
+
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun DraggablePoint(
@@ -30,12 +32,12 @@ fun DraggablePoint(
     modifier: Modifier = Modifier
 ) {
     val textMeasure = rememberTextMeasurer()
-    val radius = with(LocalDensity.current) { 15.dp.toPx() }
+    val radiusPx = with(LocalDensity.current) { DraggablePointRadius.toPx() }
     Canvas(
         modifier = modifier
-            .size(15.dp)
+            .size(DraggablePointRadius)
             .offset {
-                offset() - IntOffset(radius.roundToInt() / 2, radius.roundToInt() / 2)
+                offset() - IntOffset(radiusPx.roundToInt() / 2, radiusPx.roundToInt() / 2)
             }
             .background(color, shape = CircleShape)
             .pointerInput(Unit) {
