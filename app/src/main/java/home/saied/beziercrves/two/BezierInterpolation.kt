@@ -33,6 +33,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
@@ -48,7 +49,7 @@ private val offsetList = listOf(
 )
 private val colorList = listOf(Color.Red, Color.Green, Color.Blue)
 
-private val PointRadius = 5.dp
+private val PointRadius = 8.dp
 
 
 @Composable
@@ -77,6 +78,7 @@ fun BezierInterpolation(modifier: Modifier = Modifier) {
         Divider(thickness = 3.dp)
         QuadraticBezierCurveInterpolated1(
             offsetList = offsetList,
+            ratioList = ratioList,
             setOffset = offsetList::set,
             interpolation01 = intepolation01,
             interpolation12 = intepolation12,
@@ -85,7 +87,10 @@ fun BezierInterpolation(modifier: Modifier = Modifier) {
         Divider(thickness = 3.dp)
         QuadraticBezierCurveInterpolated2(
             offsetList = offsetList,
+            ratioList = ratioList,
             setOffset = offsetList::set,
+            interpolation01 = intepolation01,
+            interpolation12 = intepolation12,
             modifier = Modifier.weight(1f)
         )
         Divider(thickness = 3.dp)
@@ -153,6 +158,7 @@ private fun QuadraticBezierCurveInterpolated0(
 @Composable
 private fun QuadraticBezierCurveInterpolated1(
     offsetList: List<IntOffset>,
+    ratioList: List<Int>,
     setOffset: (index: Int, offset: IntOffset) -> Unit,
     interpolation01: List<IntOffset>,
     interpolation12: List<IntOffset>,
@@ -181,7 +187,16 @@ private fun QuadraticBezierCurveInterpolated1(
         interpolation01.forEachIndexed { index, intOffset ->
             Line(
                 vertice0 = { intOffset },
-                vertice1 = { interpolation12[index] })
+                vertice1 = { interpolation12[index] }
+            )
+            val lerpPoint =
+                lerp(intOffset, interpolation12[index], ratioList[index].toFloat() / 100)
+            Point(
+                offset = lerpPoint,
+                size = PointRadius / 2,
+                labelText = "${ratioList[index]}%",
+                labelOffset = IntOffset(10, 10)
+            )
         }
     }
 }
@@ -189,7 +204,10 @@ private fun QuadraticBezierCurveInterpolated1(
 @Composable
 private fun QuadraticBezierCurveInterpolated2(
     offsetList: List<IntOffset>,
+    ratioList: List<Int>,
     setOffset: (index: Int, offset: IntOffset) -> Unit,
+    interpolation01: List<IntOffset>,
+    interpolation12: List<IntOffset>,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -215,6 +233,16 @@ private fun QuadraticBezierCurveInterpolated2(
                 color = colorList[index]
             )
         }
+        interpolation01.forEachIndexed { index, intOffset ->
+            val lerpPoint =
+                lerp(intOffset, interpolation12[index], ratioList[index].toFloat() / 100)
+            Point(
+                offset = lerpPoint,
+                size = PointRadius / 2,
+                labelText = "ratio = ${ratioList[index].toFloat() / 100}",
+                labelOffset = IntOffset(10, 10)
+            )
+        }
     }
 }
 
@@ -222,14 +250,15 @@ private fun QuadraticBezierCurveInterpolated2(
 @Composable
 private fun Point(
     offset: IntOffset,
+    size: Dp = PointRadius,
     labelOffset: IntOffset = IntOffset.Zero,
     labelText: String? = null
 ) {
-    val radiusPx = with(LocalDensity.current) { PointRadius.toPx() }
+    val radiusPx = with(LocalDensity.current) { size.toPx() }
     val textMeasure = rememberTextMeasurer()
     val displaySmall = MaterialTheme.typography.labelSmall
     Canvas(modifier = Modifier
-        .size(PointRadius)
+        .size(size)
         .offset { offset - IntOffset(radiusPx.roundToInt() / 2, radiusPx.roundToInt() / 2) }
         .background(Color.Black, shape = CircleShape)
     ) {
