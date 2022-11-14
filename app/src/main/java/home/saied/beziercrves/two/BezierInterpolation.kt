@@ -24,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.buildAnnotatedString
@@ -53,7 +55,7 @@ private val PointRadius = 5.dp
 fun BezierInterpolation(modifier: Modifier = Modifier) {
     val initOffsetList = offsetList.map { LocalDensity.current.intPairToIntOffset(it) }
     val offsetList = remember { initOffsetList.toMutableStateList() }
-    var step by remember { mutableStateOf(10) }
+    var step by remember { mutableStateOf(25) }
     val ratioList = (0 until 100 step step).drop(1)
     val intepolation01 =
         ratioList.map {
@@ -64,7 +66,7 @@ fun BezierInterpolation(modifier: Modifier = Modifier) {
             lerp(offsetList[1], offsetList[2], it.toFloat() / 100)
         }
     Column(modifier = modifier) {
-        QuadraticBezierCurveInterpolated1(
+        QuadraticBezierCurveInterpolated0(
             offsetList = offsetList,
             ratioList = ratioList,
             setOffset = offsetList::set,
@@ -75,19 +77,15 @@ fun BezierInterpolation(modifier: Modifier = Modifier) {
         Divider(thickness = 3.dp)
         QuadraticBezierCurveInterpolated1(
             offsetList = offsetList,
-            ratioList = ratioList,
             setOffset = offsetList::set,
             interpolation01 = intepolation01,
             interpolation12 = intepolation12,
             modifier = Modifier.weight(1f)
         )
         Divider(thickness = 3.dp)
-        QuadraticBezierCurveInterpolated1(
+        QuadraticBezierCurveInterpolated2(
             offsetList = offsetList,
-            ratioList = ratioList,
             setOffset = offsetList::set,
-            interpolation01 = intepolation01,
-            interpolation12 = intepolation12,
             modifier = Modifier.weight(1f)
         )
         Divider(thickness = 3.dp)
@@ -111,7 +109,7 @@ fun BezierInterpolation(modifier: Modifier = Modifier) {
 private fun QuadraticBezierCurveInterpolated0(
     offsetList: List<IntOffset>,
     ratioList: List<Int>,
-    setOffset: (inde: Int, offset: IntOffset) -> Unit,
+    setOffset: (index: Int, offset: IntOffset) -> Unit,
     interpolation01: List<IntOffset>,
     interpolation12: List<IntOffset>,
     modifier: Modifier = Modifier
@@ -123,11 +121,6 @@ private fun QuadraticBezierCurveInterpolated0(
     ) {
         Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[1] })
         Line(vertice0 = { offsetList[1] }, vertice1 = { offsetList[2] })
-        QuadraticBezier(
-            point0 = offsetList[0].toOffset(),
-            point1 = offsetList[1].toOffset(),
-            point2 = offsetList[2].toOffset()
-        )
         repeat(3) { index ->
             DraggablePoint(
                 offset = { offsetList[index] },
@@ -136,10 +129,18 @@ private fun QuadraticBezierCurveInterpolated0(
             )
         }
         interpolation01.forEachIndexed { index, intOffset ->
-            Point(offset = intOffset, labelText = "${ratioList[index]}%", labelOffset = IntOffset(-60,0))
+            Point(
+                offset = intOffset,
+                labelText = "${ratioList[index]}%",
+                labelOffset = IntOffset(-60, 0)
+            )
         }
         interpolation12.forEachIndexed { index, intOffset ->
-            Point(offset = intOffset, labelText = "${ratioList[index]}%", labelOffset = IntOffset(0, -40))
+            Point(
+                offset = intOffset,
+                labelText = "${ratioList[index]}%",
+                labelOffset = IntOffset(0, -40)
+            )
         }
         interpolation01.forEachIndexed { index, intOffset ->
             Line(
@@ -152,10 +153,43 @@ private fun QuadraticBezierCurveInterpolated0(
 @Composable
 private fun QuadraticBezierCurveInterpolated1(
     offsetList: List<IntOffset>,
-    ratioList: List<Int>,
-    setOffset: (inde: Int, offset: IntOffset) -> Unit,
+    setOffset: (index: Int, offset: IntOffset) -> Unit,
     interpolation01: List<IntOffset>,
     interpolation12: List<IntOffset>,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .clip(RectangleShape)
+    ) {
+        Line(vertice0 = { offsetList[0] }, vertice1 = { offsetList[1] })
+        Line(vertice0 = { offsetList[1] }, vertice1 = { offsetList[2] })
+        repeat(3) { index ->
+            DraggablePoint(
+                offset = { offsetList[index] },
+                setOffset = { setOffset(index, it) },
+                color = colorList[index]
+            )
+        }
+        interpolation01.forEachIndexed { _, intOffset ->
+            Point(offset = intOffset, labelOffset = IntOffset(-60, 0))
+        }
+        interpolation12.forEachIndexed { _, intOffset ->
+            Point(offset = intOffset, labelOffset = IntOffset(0, -40))
+        }
+        interpolation01.forEachIndexed { index, intOffset ->
+            Line(
+                vertice0 = { intOffset },
+                vertice1 = { interpolation12[index] })
+        }
+    }
+}
+
+@Composable
+private fun QuadraticBezierCurveInterpolated2(
+    offsetList: List<IntOffset>,
+    setOffset: (index: Int, offset: IntOffset) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -168,7 +202,11 @@ private fun QuadraticBezierCurveInterpolated1(
         QuadraticBezier(
             point0 = offsetList[0].toOffset(),
             point1 = offsetList[1].toOffset(),
-            point2 = offsetList[2].toOffset()
+            point2 = offsetList[2].toOffset(),
+            style = Stroke(
+                width = 3f,
+                pathEffect = PathEffect.dashPathEffect(listOf(3f, 5f).toFloatArray())
+            )
         )
         repeat(3) { index ->
             DraggablePoint(
@@ -176,17 +214,6 @@ private fun QuadraticBezierCurveInterpolated1(
                 setOffset = { setOffset(index, it) },
                 color = colorList[index]
             )
-        }
-        interpolation01.forEachIndexed { index, intOffset ->
-            Point(offset = intOffset, labelText = "${ratioList[index]}%", labelOffset = IntOffset(-60,0))
-        }
-        interpolation12.forEachIndexed { index, intOffset ->
-            Point(offset = intOffset, labelText = "${ratioList[index]}%", labelOffset = IntOffset(0, -40))
-        }
-        interpolation01.forEachIndexed { index, intOffset ->
-            Line(
-                vertice0 = { intOffset },
-                vertice1 = { interpolation12[index] })
         }
     }
 }
